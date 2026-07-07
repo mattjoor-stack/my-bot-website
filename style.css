@@ -1,0 +1,149 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f6f9;
+}
+
+.main-content {
+    text-align: center;
+    margin-top: 100px;
+}
+
+/* עיצוב הבועה העגולה */
+.chat-bubble {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transition: transform 0.2s;
+}
+
+.chat-bubble:hover {
+    transform: scale(1.1);
+}
+
+/* חלונית הצ'אט הנסתרת כברירת מחדל */
+.chat-window {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 350px;
+    height: 500px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.chat-header {
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h3 { margin: 0; font-size: 16px; }
+.close-btn { background: none; border: none; color: white; font-size: 16px; cursor: pointer; }
+
+.chat-body {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    padding: 10px 14px;
+    border-radius: 8px;
+    max-width: 75%;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.bot-message { background-color: #f1f0f0; align-self: flex-start; }
+.user-message { background-color: #007bff; color: white; align-self: flex-end; }
+
+/* אזור כפתורי הנציג */
+.agent-options {
+    background-color: #f9f9f9;
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid #eee;
+    font-size: 13px;
+}
+.agent-options p { margin: 0 0 8px 0; font-weight: bold; }
+.options-buttons { display: flex; gap: 10px; justify-content: center; }
+.options-buttons button {
+    padding: 6px 12px;
+    border: 1px solid #007bff;
+    background: white;
+    color: #007bff;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+}
+.options-buttons button:hover { background-color: #007bff; color: white; }
+
+/* טופס השארת הפרטים */
+.lead-form {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 50px);
+    background: white;
+    display: none;
+    padding: 20px;
+    box-sizing: border-box;
+    flex-direction: column;
+    z-index: 1001;
+}
+.lead-form input, .lead-form textarea {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+.lead-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.lead-form .back-btn { background-color: #6c757d; margin-top: 5px; }
+
+.chat-viewers {
+    display: none;
+}
+
+.chat-footer {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #eee;
+}
+.chat-footer input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; outline: none; }
+.chat-footer button { background-color: #007bff; color: white; border: none; padding: 0 15px; margin-right: 5px; border-radius: 4px; cursor: pointer; }

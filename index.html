@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>האתר שלי ובוט AI חכם</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-content">
+        <h1>ברוכים הבאים לאתר החדש שלי</h1>
+        <p>דף זה נטען במהירות שיא ומאובטח ב-100%.</p>
+    </div>
+
+    <div class="chat-bubble" id="chatBubble" onclick="toggleChat()">
+        💬
+    </div>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <h3>עוזר דיגיטלי חכם</h3>
+            <button class="close-btn" onclick="toggleChat()">✖</button>
+        </div>
+        
+        <div class="chat-body" id="chatBody">
+            <div class="message bot-message">שלום! במה אוכל לעזור לך היום?</div>
+        </div>
+
+        <div class="agent-options" id="agentOptions">
+            <p>צריך עזרה מנציג אנושי?</p>
+            <div class="options-buttons">
+                <button onclick="startLiveChat()">💬 נציג בשידור חי</button>
+                <button onclick="showLeadForm()">✉️ השארת פנייה</button>
+            </div>
+        </div>
+
+        <div class="lead-form" id="leadForm">
+            <h4>השארת פרטים לנציג</h4>
+            <form id="contactForm" onsubmit="submitForm(event)">
+                <input type="text" id="userName" placeholder="שם מלא" required>
+                <input type="tel" id="userPhone" placeholder="מספר טלפון" required>
+                <textarea id="userMessage" placeholder="מהות הפנייה שלך..." required></textarea>
+                <button type="submit">שלח פנייה</button>
+                <button type="button" class="back-btn" onclick="hideLeadForm()">חזרה לצ'אט</button>
+            </form>
+        </div>
+
+        <div class="chat-footer" id="chatFooter">
+            <input type="text" id="userInput" placeholder="הקלד הודעה כאן..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">שלח</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
