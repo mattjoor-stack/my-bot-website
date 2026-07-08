@@ -18,20 +18,46 @@ function hideLeadForm() {
     document.getElementById('leadForm').style.display = 'none';
 }
 
-// פונקציה זמנית לשליחת הודעה ע"י המשתמש בצ'אט
-function sendMessage() {
+// פונקציה המבצעת שליחת הודעה אמיתית ל-AI בשרת
+async function sendMessage() {
     const input = document.getElementById('userInput');
     const messageText = input.value.trim();
     if (messageText === '') return;
 
-    // הוספת הודעת המשתמש למסך
+    // 1. הוספת הודעת המשתמש למסך ואיפוס השדה
     appendMessage(messageText, 'user-message');
     input.value = '';
 
-    // סימולציה של תגובת בוט אוטומטית (בהמשך נחבר פה את ה-AI האמיתי)
-    setTimeout(() => {
-        appendMessage("תודה על הודעתך! המערכת כרגע בבנייה, בקרוב אענה לך בצורה חכמה.", 'bot-message');
-    }, 1000);
+    // 2. הוספת הודעת טעינה זמנית מהבוט ("חושב...") כדי שהגולש ידע שיש מענה
+    appendMessage("חושב...", 'bot-message-loading');
+
+    try {
+        // 3. שליחת הבקשה האמיתית לשרת שלנו ב-Vercel
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: messageText })
+        });
+
+        const data = await response.json();
+
+        // 4. הסרת הודעת הטעינה מהמסך
+        removeLoadingMessage();
+
+        // 5. הצגת התשובה החכמה שחזרה מ-OpenAI
+        if (data.reply) {
+            appendMessage(data.reply, 'bot-message');
+        } else {
+            appendMessage("אוי, משהו השתבש בקבלת התשובה. נסה שוב!", 'bot-message');
+        }
+
+    } catch (error) {
+        console.error("Error communicating with AI:", error);
+        removeLoadingMessage();
+        appendMessage("סליחה, יש לי כרגע בעיית תקשורת. נסה שוב בעוד רגע.", 'bot-message');
+    }
 }
 
 // פונקציה המאפשרת שליחת הודעה גם בלחיצה על מקש Enter במקלדת
@@ -49,6 +75,14 @@ function appendMessage(text, className) {
     messageDiv.innerText = text;
     chatBody.appendChild(messageDiv);
     chatBody.scrollTop = chatBody.scrollHeight; // גלילה אוטומטית למטה
+}
+
+// פונקציה שמסירה את הודעת הטעינה ("חושב...") ברגע שהתשובה מגיעה
+function removeLoadingMessage() {
+    const loadingMessage = document.querySelector('.bot-message-loading');
+    if (loadingMessage) {
+        loadingMessage.remove();
+    }
 }
 
 // פונקציה בלחיצה על "נציג בשידור חי" - כרגע פותחת הודעה, בהמשך נחבר פה את הצאט החי
