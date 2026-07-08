@@ -1,33 +1,39 @@
 import { OpenAI } from 'openai';
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 export default async function handler(req, res) {
-    // 1. הגנה: מאפשרים רק לקוד מהאתר שלנו לשלוח הודעות (בשיטת POST)
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    // השרת מקבל כעת את מערך ההודעות המלא (כל ההיסטוריה) מהאתר
+    const { messages } = req.body;
+
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Messages are required and must be an array' });
     }
 
-    try {
-        // 2. קריאת ההודעה שהמשתמש הקליד בצ'אט
-        const { message } = req.body;
+    // הגדרת האופי הבסיסי של הבוט (כרגע כללי, נשנה אותו בהמשך לפי העסק שלך)
+    const systemMessage = {
+      role: 'system',
+      content: 'אתה עוזר דיגיטלי חכם באתר של Matt. ענה תמיד בעברית, בצורה אדיבה ויעילה.'
+    };
 
-        // 3. התחברות ל-OpenAI באמצעות המפתח הסודי מהכספת של Vercel
-        const openai = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY,
-        });
+    // אנחנו מחברים את האופי של הבוט יחד עם כל היסטוריית השיחה שנשלחה מהאתר
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [systemMessage, ...messages],
+    });
 
-        // 4. שליחת השאלה לבינה המלאכותית וקבלת תשובה
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4o-mini', // מודל מהיר וזול שמתאים בול לצ'אט
-            messages: [{ role: 'user', content: message }],
-        });
+    const reply = completion.choices[0].message.content;
+    res.status(200).json({ reply });
 
-        // 5. החזרת התשובה החכמה חזרה לדפדפן של הגולש
-        const reply = response.choices[0].message.content;
-        return res.status(200).json({ reply });
-
-    } catch (error) {
-        // 6. תוכנית הגיבוי: אם משהו נכשל (למשל בעיית חיבור), נחזיר שגיאה מסודרת
-        console.error(error);
-        return res.status(500).json({ reply: 'תודה על הודעתך! המערכת כרגע בבנייה, בקרוב אענה לך בצורה חכמה.' });
-    }
+  } catch (error) {
+    console.error('OpenAI Error:', error);
+    res.status(500).json({ error: 'Failed to fetch AI response' });
+  }
 }
