@@ -1,4 +1,6 @@
-// פונקציה לפתיחה וסגירה של חלון הצ'אט בלחיצה על הבועה
+// מחברת הזיכרון של הצ'אט - כאן יישמרו כל ההודעות מההתחלה ללא הגבלה
+let chatHistory = [];
+
 function toggleChat() {
     const chatWindow = document.getElementById('chatWindow');
     if (chatWindow.style.display === 'none' || chatWindow.style.display === '') {
@@ -8,47 +10,48 @@ function toggleChat() {
     }
 }
 
-// פונקציה שמציגה את טופס השארת הפרטים (Lead Form)
 function showLeadForm() {
     document.getElementById('leadForm').style.display = 'flex';
 }
 
-// פונקציה שמסתיקה את טופס השארת הפרטים ומחזירה לצ'אט
 function hideLeadForm() {
     document.getElementById('leadForm').style.display = 'none';
 }
 
-// פונקציה המבצעת שליחת הודעה אמיתית ל-AI בשרת
 async function sendMessage() {
     const input = document.getElementById('userInput');
     const messageText = input.value.trim();
     if (messageText === '') return;
 
-    // 1. הוספת הודעת המשתמש למסך ואיפוס השדה
+    // 1. מציגים את הודעת המשתמש על המסך ומאפסים את התיבה
     appendMessage(messageText, 'user-message');
     input.value = '';
 
-    // 2. הוספת הודעת טעינה זמנית מהבוט ("חושב...") כדי שהגולש ידע שיש מענה
+    // 2. שומרים את ההודעה החדשה של המשתמש בתוך מחברת הזיכרון
+    chatHistory.push({ role: 'user', content: messageText });
+
+    // 3. מציגים הודעת טעינה ("חושב...")
     appendMessage("חושב...", 'bot-message-loading');
 
     try {
-        // 3. שליחת הבקשה האמיתית לשרת שלנו ב-Vercel
+        // 4. שולחים את כל היסטוריית השיחה המלאה לשרת שלנו
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ message: messageText })
+            body: JSON.stringify({ messages: chatHistory })
         });
 
         const data = await response.json();
-
-        // 4. הסרת הודעת הטעינה מהמסך
         removeLoadingMessage();
 
-        // 5. הצגת התשובה החכמה שחזרה מ-OpenAI
         if (data.reply) {
+            // 5. מציגים את תשובת הבוט החכמה על המסך
             appendMessage(data.reply, 'bot-message');
+            
+            // 6. שומרים גם את תשובת הבוט בתוך מחברת הזיכרון לשימוש בהודעה הבאה
+            chatHistory.push({ role: 'assistant', content: data.reply });
         } else {
             appendMessage("אוי, משהו השתבש בקבלת התשובה. נסה שוב!", 'bot-message');
         }
@@ -60,24 +63,21 @@ async function sendMessage() {
     }
 }
 
-// פונקציה המאפשרת שליחת הודעה גם בלחיצה על מקש Enter במקלדת
 function handleKeyPress(event) {
     if (event.key === 'Enter') {
         sendMessage();
     }
 }
 
-// פונקציה שמדפיסה פיזית את ההודעות בתוך חלון השיחה
 function appendMessage(text, className) {
     const chatBody = document.getElementById('chatBody');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${className}`;
     messageDiv.innerText = text;
     chatBody.appendChild(messageDiv);
-    chatBody.scrollTop = chatBody.scrollHeight; // גלילה אוטומטית למטה
+    chatBody.scrollTop = chatBody.scrollHeight;
 }
 
-// פונקציה שמסירה את הודעת הטעינה ("חושב...") ברגע שהתשובה מגיעה
 function removeLoadingMessage() {
     const loadingMessage = document.querySelector('.bot-message-loading');
     if (loadingMessage) {
@@ -85,22 +85,15 @@ function removeLoadingMessage() {
     }
 }
 
-// פונקציה בלחיצה על "נציג בשידור חי" - כרגע פותחת הודעה, בהמשך נחבר פה את הצאט החי
 function startLiveChat() {
-    alert("מתחבר לנציג דיגיטלי... (כאן נחבר בהמשך את חלון ה-Live Chat החינמי)");
+    alert("מתחבר לנציג דיגיטלי...");
 }
 
-// פונקציה המופעלת בעת שליחת טופס הפרטים
 function submitForm(event) {
-    event.preventDefault(); // מונע מהדף להתרענן
-    
+    event.preventDefault();
     const name = document.getElementById('userName').value;
     const phone = document.getElementById('userPhone').value;
-    const message = document.getElementById('userMessage').value;
-
-    alert(`הפרטים נשלחו בהצלחה!\nשם: ${name}\nטלפון: ${phone}\n(כאן נחבר בהמשך את האוטומציה ששולחת את זה ישירות אליך למייל/ל-CRM)`);
-    
-    // איפוס הטופס וחזרה לצ'אט
+    alert(`הפרטים נשלחו בהצלחה!\nשם: ${name}\nטלפון: ${phone}`);
     document.getElementById('contactForm').reset();
     hideLeadForm();
 }
