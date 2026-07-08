@@ -10,20 +10,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    // השרת מקבל כעת את מערך ההודעות המלא (כל ההיסטוריה) מהאתר
     const { messages } = req.body;
 
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'Messages are required and must be an array' });
     }
 
-    // הגדרת האופי הבסיסי של הבוט (כרגע כללי, נשנה אותו בהמשך לפי העסק שלך)
+    // הנה השינוי: שינינו את ההנחיה של הבוט לענות באנגלית בלבד
     const systemMessage = {
       role: 'system',
-      content: 'אתה עוזר דיגיטלי חכם באתר של Matt. ענה תמיד בעברית, בצורה אדיבה ויעילה.'
+      content: 'You are a smart digital assistant on Matt\'s website. Always respond in English, in a polite and helpful manner.'
     };
 
-    // אנחנו מחברים את האופי של הבוט יחד עם כל היסטוריית השיחה שנשלחה מהאתר
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [systemMessage, ...messages],
